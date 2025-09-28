@@ -1,0 +1,12 @@
+# Fișiere temporare Excel/Office
+~$*.xls*
+*.tmp
+*.bak
+*.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
