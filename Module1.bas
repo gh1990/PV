@@ -1,3 +1,4 @@
+Attribute VB_Name = "Module1"
 Option Explicit
 ' Stare globala pentru o singura foaie vizualizata temporar
 Public TempVisibleSheetName As String
@@ -13,7 +14,7 @@ Private cmbEchipaText As String
 Private cmbTipText As String
 ' Foi-model/foi date care pot fi ascunse
 Private Const MODEL_SHEETS As String = "PVModel|FisaModel|Liste|Obiect|Norma|Materiale|Utilaj|Transport"
-
+Public FlagUserFormNeedsRefresh As Boolean
 
 ' =============================================
 ' PROTECTIE FOI DE BAZA DE DATE CRITICE
@@ -72,7 +73,7 @@ Private Function IsModelOrDataSheet(ByVal n As String) As Boolean
     IsModelOrDataSheet = (InStr(1, "|" & MODEL_SHEETS & "|", "|" & n & "|", vbTextCompare) > 0)
 End Function
 ' Exista un sheet (Worksheets sau Chart) cu numele dat?
-Private Function SheetExistsAll(ByVal sheetName As String) As Boolean
+Public Function SheetExistsAll(ByVal sheetName As String) As Boolean
     Dim s As Object
     For Each s In ThisWorkbook.Sheets
         If StrComp(s.Name, sheetName, vbTextCompare) = 0 Then
@@ -151,7 +152,7 @@ End Sub
 ' =============================================
 ' ?ncarca listele din foaia "Liste"
 ' =============================================
-Private Sub LoadLists()
+Public Sub LoadLists()
     Dim ws As Worksheet
     Dim lastRow As Long, i As Long, j As Long
     Dim dictEchipe As Object, dictTip As Object
@@ -605,7 +606,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
         End With
     Next i
     If deletableCount = 0 Then
-        MsgBox "Nu s-au gasit foi de sters cu prefixele 'PV_' sau 'F_' (excluzând foile critice).", vbInformation
+        MsgBox "Nu s-au gasit foi de sters cu prefixele 'PV_' sau 'F_' (excluzвnd foile critice).", vbInformation
         Exit Sub
     End If
     ' Siguranta: nu permite stergerea tuturor foilor (Excel necesita cel putin o foaie)
@@ -615,7 +616,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     End If
     ' 2) Confirmare (optional)
     If cereConfirmare Then
-        raspuns = MsgBox("Se vor sterge " & deletableCount & " foi (PV_* si F_*, excluzând foile critice)." & vbCrLf & _
+        raspuns = MsgBox("Se vor sterge " & deletableCount & " foi (PV_* si F_*, excluzвnd foile critice)." & vbCrLf & _
                          "Esti sigur ca vrei sa continui?", vbQuestion + vbYesNo + vbDefaultButton2, "Confirmare stergere")
         If raspuns <> vbYes Then Exit Sub
     End If
@@ -638,7 +639,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     Application.DisplayAlerts = prevAlerts
     Application.ScreenUpdating = prevScreen
     Application.EnableEvents = prevEvents
-    MsgBox "Au fost sterse " & deletableCount & " foi (PV_* si F_*, excluzând foile critice).", vbInformation
+    MsgBox "Au fost sterse " & deletableCount & " foi (PV_* si F_*, excluzвnd foile critice).", vbInformation
     Exit Sub
 ErrHandler:
     ' Restaurare stari in caz de eroare
@@ -1736,3 +1737,6 @@ Public Sub ProtejeazaFoiaSTART()
     
     MsgBox "Foaia 'START' este protejata ?mpotriva ?tergerii ?i modificarii (fara parola).", vbInformation
 End Sub
+
+
+
