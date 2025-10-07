@@ -1,4 +1,3 @@
-Attribute VB_Name = "Module1"
 Option Explicit
 ' Stare globala pentru o singura foaie vizualizata temporar
 Public TempVisibleSheetName As String
@@ -1737,6 +1736,7 @@ Public Sub ProtejeazaFoiaSTART()
     
     MsgBox "Foaia 'START' este protejata ?mpotriva ?tergerii ?i modificarii (fara parola).", vbInformation
 End Sub
+
 
 
 
