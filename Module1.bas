@@ -474,8 +474,12 @@ End Sub
 
 Public Sub FormeazaFisa(control As IRibbonControl)
     If ExistaPrefix("PV_") Then
-        ActiveSheet.Range("E1").value = " "
-        CreeazaFiseDinPV
+        If Left(ActiveSheet.Name, 3) = "PV_" Then
+            ActiveSheet.Range("E1").value = " "
+            CreeazaFiseDinPV
+        Else
+            MsgBox "Selecteaza o foaie de tip Proces Verbal (PV_*) pentru a genera fisa!", vbExclamation
+        End If
     Else
         MsgBox "Nu egzista nici un Proces verbal", vbInformation
     End If
