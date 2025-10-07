@@ -23,6 +23,12 @@ Private Sub UserForm_Activate()
     Dim latimeForma As Long
     Dim inaltimeForma As Long
 
+    If Module1.FlagUserFormNeedsRefresh Then
+        ' Reîncarca datele pentru ListBox1 ?i altele
+        Module1.PopuleazaListBoxCuDateDinFoaiaCurenta Me.Tag ' sau alta procedura relevanta
+        Module1.FlagUserFormNeedsRefresh = False
+    End If
+
     latimeEcran = Application.UsableWidth
     inaltimeEcran = Application.UsableHeight
 
@@ -35,6 +41,8 @@ Private Sub UserForm_Activate()
         .Top = Application.Max(0, (inaltimeEcran - inaltimeForma) / 2)
     End With
 End Sub
+
+
 
 Private Sub CommandButton1_Click()
 
