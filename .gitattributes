@@ -1,4 +1,0 @@
-# Tratează fișierele Office ca LFS (gestionare mai bună pentru binare mari)
-*.xlsm filter=lfs diff=lfs merge=lfs -text
-*.xlam filter=lfs diff=lfs merge=lfs -text
-*.xlsb filter=lfs diff=lfs merge=lfs -text
