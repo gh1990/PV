@@ -14,6 +14,8 @@ Private cmbEchipaText As String
 Private cmbTipText As String
 ' Foi-model/foi date care pot fi ascunse
 Private Const MODEL_SHEETS As String = "PVModel|FisaModel|Liste|Obiect|Norma|Materiale|Utilaj|Transport"
+' Foi critice care nu pot fi sterse
+Private Const CRITICAL_SHEETS As String = "Obiect|Norma|Materiale|Utilaj|Transport|Liste"
 ' =============================================
 ' Utilitare: acces sigur la foi + protectie structura
 ' =============================================
@@ -58,6 +60,10 @@ End Sub
 ' E foaie model/BD?
 Private Function IsModelOrDataSheet(ByVal n As String) As Boolean
     IsModelOrDataSheet = (InStr(1, "|" & MODEL_SHEETS & "|", "|" & n & "|", vbTextCompare) > 0)
+End Function
+' E foaie critica (nu poate fi stearsa)?
+Private Function IsCriticalSheet(ByVal n As String) As Boolean
+    IsCriticalSheet = (InStr(1, "|" & CRITICAL_SHEETS & "|", "|" & n & "|", vbTextCompare) > 0)
 End Function
 ' Exista un sheet (Worksheets sau Chart) cu numele dat?
 Private Function SheetExistsAll(ByVal sheetName As String) As Boolean
@@ -137,7 +143,7 @@ Public Sub RibbonOnLoad(ribbon As IRibbonUI)
     AscundeFoiModel
 End Sub
 ' =============================================
-' Încarca listele din foaia "Liste"
+' ï¿½ncarca listele din foaia "Liste"
 ' =============================================
 Private Sub LoadLists()
     Dim ws As Worksheet
@@ -188,7 +194,7 @@ Private Sub LoadLists()
     Else
         tipArr = Array(): cmbTipText = ""
     End If
-    ' Reîmprospatare Ribbon
+    ' Reï¿½mprospatare Ribbon
     If Not ribbonUI Is Nothing Then
         ribbonUI.InvalidateControl "cmbEchipa"
         ribbonUI.InvalidateControl "cmbTip"
@@ -455,7 +461,7 @@ Finalize:
     Application.EnableEvents = prevEvents
     Application.DisplayAlerts = True
     If Err.Number <> 0 Then
-        MsgBox "Eroare în CalcMateriale: " & Err.Description, vbExclamation
+        MsgBox "Eroare ï¿½n CalcMateriale: " & Err.Description, vbExclamation
     End If
 End Sub
 
@@ -580,7 +586,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     deletableCount = 0
     For i = 1 To ThisWorkbook.Worksheets.count
         With ThisWorkbook.Worksheets(i)
-            If Left$(.Name, 3) = "PV_" Or Left$(.Name, 2) = "F_" Then
+            If (Left$(.Name, 3) = "PV_" Or Left$(.Name, 2) = "F_") And Not IsCriticalSheet(.Name) Then
                 deletableCount = deletableCount + 1
             End If
         End With
@@ -609,7 +615,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     ' 4) Sterge foile tinta in ordine inversa
     For i = ThisWorkbook.Worksheets.count To 1 Step -1
         With ThisWorkbook.Worksheets(i)
-            If Left$(.Name, 3) = "PV_" Or Left$(.Name, 2) = "F_" Then
+            If (Left$(.Name, 3) = "PV_" Or Left$(.Name, 2) = "F_") And Not IsCriticalSheet(.Name) Then
                 .Delete
             End If
         End With
@@ -731,8 +737,8 @@ Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional Insera
     If IsMissing(InserareRand) Then
         Dim raspuns As VbMsgBoxResult
         raspuns = MsgBox("Doriti sa inserati un rind nou deasupra selectiei?" & vbCrLf & _
-                         "— Da: se insereaza rind nou" & vbCrLf & _
-                         "— Nu: se scrie in rindul selectat", _
+                         "ï¿½ Da: se insereaza rind nou" & vbCrLf & _
+                         "ï¿½ Nu: se scrie in rindul selectat", _
                          vbQuestion + vbYesNo, "Alegeti modul de inserare")
         InserareRand = (raspuns = vbYes)
     End If
@@ -973,7 +979,7 @@ Sub AddTransport()
     UserForm1.Show
 End Sub
 ' ============================================
-' Creare PV nou – Copiere robusta + redenumire corecta + pozitionare corecta
+' Creare PV nou ï¿½ Copiere robusta + redenumire corecta + pozitionare corecta
 ' ============================================
 Public Sub CopiazaFoaie(ByVal numeSursa As String, ByVal Prefix As String)
     Dim wb As Workbook
@@ -1013,7 +1019,7 @@ Public Sub CopiazaFoaie(ByVal numeSursa As String, ByVal Prefix As String)
             End If
         End If
     Next ws
-    ' Generator de nume robust: cauta primul liber (verificare pe Sheets – include ChartSheets)
+    ' Generator de nume robust: cauta primul liber (verificare pe Sheets ï¿½ include ChartSheets)
     nrCurent = maxNr + 1
     numeNou = Prefix & CStr(nrCurent)
     Do While SheetExistsAll(numeNou)
@@ -1514,12 +1520,12 @@ For i = 1 To lastRowB
             denumireTransport = Trim$(CStr(ws.Cells(i, "C").value))
             motoare = 0: km = 0
             
-            ' Motoarele (F, acela?i rând)
+            ' Motoarele (F, acela?i rï¿½nd)
             If IsNumeric(ws.Cells(i, "E").value) Then
                 motoare = CDbl(ws.Cells(i, "E").value)
             End If
             
-            ' Km (F, rândul urmator)
+            ' Km (F, rï¿½ndul urmator)
             If i + 1 <= ws.Rows.count Then
                 If IsNumeric(ws.Cells(i + 1, "E").value) Then
                     km = CDbl(ws.Cells(i + 1, "E").value)
@@ -1535,7 +1541,7 @@ For i = 1 To lastRowB
                 ' Actualizam
                 arr(0) = arr(0) + motoare
                 arr(1) = arr(1) + km
-                ' Reatribuim (denumirea ramâne din prima apari?ie ? nu o schimbam)
+                ' Reatribuim (denumirea ramï¿½ne din prima apari?ie ? nu o schimbam)
                 dictTransport(key) = arr
             Else
                 ' Stocam: (motoare, km, denumire)
@@ -1547,7 +1553,7 @@ Next i
         End If
     Next ws
     
-    ' --- Scriem în foaia Statistica ---
+    ' --- Scriem ï¿½n foaia Statistica ---
     With wsStat
         .Range("A1:E1").value = Array("Tip Lucrare", "Manopera (h-om)", "Nume Transport", "M-ht", "Km")
         .Range("A1:E1").Font.Bold = True
@@ -1623,14 +1629,14 @@ Next i
         wsStat.Visible = xlSheetVisible
         wsStat.Activate
     
-    'MsgBox "Statistica a fost generata cu succes în foaia 'Statistica'.", vbInformation
+    'MsgBox "Statistica a fost generata cu succes ï¿½n foaia 'Statistica'.", vbInformation
 
 Finalize:
     RestoreStructureIfNeeded wasProt
     Application.ScreenUpdating = prevScreen
     Application.EnableEvents = prevEvents
     If Err.Number <> 0 Then
-        MsgBox "Eroare în GenereazaStatistica: " & Err.Description, vbExclamation
+        MsgBox "Eroare ï¿½n GenereazaStatistica: " & Err.Description, vbExclamation
     End If
 End Sub
 
@@ -1663,15 +1669,15 @@ Sub ImportaToateFoileDinAltWorkbook()
     Application.ScreenUpdating = False
     Application.EnableEvents = False
     
-    ' Deschidem workbook-ul sursa în background
+    ' Deschidem workbook-ul sursa ï¿½n background
     Set wbSursa = Workbooks.Open(FisierSelectat, ReadOnly:=True)
     
-    ' Copiem fiecare foaie în workbook-ul curent
+    ' Copiem fiecare foaie ï¿½n workbook-ul curent
     For Each ws In wbSursa.Worksheets
         ws.Copy After:=wbDestinatie.Sheets(wbDestinatie.Sheets.count)
     Next ws
     
-    ' Închidem workbook-ul sursa fara a salva
+    ' ï¿½nchidem workbook-ul sursa fara a salva
     wbSursa.Close SaveChanges:=False
     
     Application.EnableEvents = True
@@ -1695,7 +1701,7 @@ Public Sub ProtejeazaFoiaSTART()
     ' 1. Protejeaza workbook-ul (fara parola) pentru a bloca ?tergerea foilor
     wasProtWb = UnprotectStructureIfNeeded()
     ThisWorkbook.Protect Structure:=True, Windows:=False
-    RestoreStructureIfNeeded wasProtWb ' Asigura ca ramâne protejat
+    RestoreStructureIfNeeded wasProtWb ' Asigura ca ramï¿½ne protejat
     
     ' 2. Protejeaza foaia START (fara parola, toate op?iunile blocate)
     ws.Unprotect ' Deblocheaza temporar (daca era protejata)
@@ -1715,6 +1721,6 @@ Public Sub ProtejeazaFoiaSTART()
     ' Op?ional: ascunde bara de formule pentru START (daca dore?ti)
     ' ws.EnableSelection = xlUnlockedCells ' doar daca ai celule deblocate
     
-    MsgBox "Foaia 'START' este protejata împotriva ?tergerii ?i modificarii (fara parola).", vbInformation
+    MsgBox "Foaia 'START' este protejata ï¿½mpotriva ?tergerii ?i modificarii (fara parola).", vbInformation
 End Sub
 
