@@ -7,8 +7,6 @@ Private Sub Workbook_Open()
     On Error GoTo 0
 End Sub
 
-
-
 Private Sub Workbook_SheetDeactivate(ByVal Sh As Object)
     On Error GoTo SafeExit
     If Sh.Name = "CalculMateriale" Or Sh.Name = "Statistica" Then
@@ -23,7 +21,26 @@ End Sub
 
 ' Subrutina Workbook_SheetChange - declansata atunci cand se face o modificare intr-o foaie de lucru
 Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
-    ' Verificam dacã modificarea afecteaza coloanele E sau F
+    
+    Dim bdSheets As Variant
+    bdSheets = Array("Obiect", "Norma", "Materiale", "Utilaj", "Transport", "Liste")
+
+    Dim iii As Integer
+    For iii = LBound(bdSheets) To UBound(bdSheets)
+        If Sh.Name = bdSheets(iii) Then
+            Module1.FlagUserFormNeedsRefresh = True
+            Exit For
+        End If
+    Next iii
+    
+        ' Actualizeaza ribbon-ul daca se schimba foaia "Liste"
+    If Sh.Name = "Liste" Then
+        On Error Resume Next
+        Module1.LoadLists
+        On Error GoTo 0
+    End If
+    
+    ' Verificam dacг modificarea afecteaza coloanele E sau F
     If Not Intersect(Target, Sh.Range("E:F")) Is Nothing Then
         
                 ' >>>>>> VERIFICARE FOAIE: Ruleaza DOAR pe foi care incep cu "PV_"
@@ -99,8 +116,12 @@ Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
                     cell.Formula = "=ROUND(E" & rowNum & "*F" & rowNum & ",3)"       '------------------------------------
                     ws.Cells(rowNum, "F").value = valoareK1
                     ws.Cells(rowNum, "E").Formula = adrNorma & adrCantitate
+                    ws.Cells(rowNum - 1, "F").Formula = "=ROUND(E" & rowNum & "/E" & (rowNum - 2) & ",3)"
+                    ws.Cells(rowNum - 1, "G").Formula = "=ROUND(F" & rowNum & "*F" & (rowNum - 1) & ",3)"
                     ws.Cells(rowNum - 2, "F").Formula = adrUnitateMasura
                     ws.Cells(rowNum, "D").value = "h-om"
+                    ws.Cells(rowNum - 1, "D").value = "h-om"
+                    ws.Cells(rowNum - 1, "E").value = "1"
                 Next cell
 
             End If
@@ -198,7 +219,7 @@ ExitSub:
         Exit Sub
         
 ErrorHandler:
-        MsgBox "A apãrut o eroare: " & Err.Description, vbExclamation
+        MsgBox "A apгrut o eroare: " & Err.Description, vbExclamation
         Resume ExitSub
     End If
 End Sub
@@ -209,7 +230,7 @@ End Sub
 Private Sub Workbook_SheetActivate(ByVal Sh As Object)
     On Error GoTo SafeExit
     ' Daca avem o foaie deschisa temporar ?i tocmai am activat o foaie "mereu vizibila",
-    ' atunci restauram vizibilitatea foii temporare (o reascundem cum era înainte)
+    ' atunci restauram vizibilitatea foii temporare (o reascundem cum era оnainte)
     If Len(TempVisibleSheetName) > 0 Then
         If StrComp(Sh.Name, TempVisibleSheetName, vbTextCompare) <> 0 Then
             If IsAlwaysVisibleSheetName(Sh.Name) Then
