@@ -1,0 +1,80 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="RibbonOnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="tabTest" label="Proces Verbal">
+        
+        <!-- Configurare -->
+        <group id="grpConfig" label="Configurare">
+          <comboBox id="cmbEchipa" label="Echipa"
+            sizeString="XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            getItemCount="cmbEchipa_getItemCount"
+            getItemLabel="cmbEchipa_getItemLabel"
+            getText="cmbEchipa_getText"
+            onChange="cmbEchipa_onChange"/>
+          <comboBox id="cmbTip" label="Tip lucrare"
+            sizeString="XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            getItemCount="cmbTip_getItemCount"
+            getItemLabel="cmbTip_getItemLabel"
+            getText="cmbTip_getText"
+            onChange="cmbTip_onChange"/>
+        </group>
+
+        <!-- Formulare -->
+        <group id="grpFormulare" label="Formulare">
+          <button id="btnAddProcesVerbalNou" label="Formular PV" size="normal" imageMso="FileNew" onAction="AddProcesVerbalNou"/>
+          <button id="btnAddFormularNorma" label="Formular Norma" size="normal" imageMso="CreateForm" onAction="AddFormularNorma"/>
+          <button id="btnAddFormularTransport" label="Formular Transport" size="normal" imageMso="Schedule" onAction="AddFormularTransport"/>
+        </group>
+
+        <!-- Adaugare in PV -->
+        <group id="grpAdaugarePV" label="Adaugare in PV">
+          <button id="btnAddObiectPV" label="Obiect" size="normal" imageMso="MarginsAdjust" onAction="AddObiectPV"/>
+          <button id="btnAddNormaPV" label="Norma" size="normal" imageMso="CheckNames" onAction="AddNormaPV"/>
+          <button id="btnAddMaterialePV" label="Materiale" size="normal" imageMso="CellsInsertDialog" onAction="AddMaterialePV"/>
+          <button id="btnAddUtilajPV" label="Utilaj" size="normal" imageMso="EndOfDocument" onAction="AddUtilajPV"/>
+          <button id="btnAddTransportPV" label="Transport" size="normal" imageMso="ControlToolboxOutlook" onAction="AddTransportPV"/>
+        </group>
+
+        <!-- Baze de Date -->
+        <group id="grpBD" label="Baze de Date">
+          <button id="btnAddObiectBD" label="Obiect" size="normal" imageMso="RelationshipDesignAllRelationships" onAction="AddObiectBD"/>
+          <button id="btnAddNormaBD" label="Norma" size="normal" imageMso="FilterAdvancedByForm" onAction="AddNormaBD"/>
+          <button id="btnAddMaterialeBD" label="Materiale" size="normal" imageMso="AutoFormatWizard" onAction="AddMaterialeBD"/>
+          <button id="btnAddUtilajBD" label="Utilaj" size="normal" imageMso="CreateModule" onAction="AddUtilajBD"/>
+          <button id="btnAddTransportBD" label="Transport" size="normal" imageMso="VisualBasicReferences" onAction="AddTransportBD"/>
+          <button id="btnAddListeBD" label="Liste" size="normal" imageMso="ColumnsDialog" onAction="AddListeBD"/>
+        </group>
+
+        <!-- Modele -->
+        <group id="grpModele" label="Modele">
+          <button id="btnFormularPV" label="Model PV" size="normal" imageMso="EnvelopesAndLabelsDialog" onAction="FormularPV"/>
+          <button id="btnFormularFise" label="Model Fise" size="normal" imageMso="AddressBook" onAction="FormularFise"/>
+          <button id="btnStergePVFise" label="Sterge PV/Fise" size="normal" imageMso="Delete" onAction="StergePVFise"/>
+        </group>
+
+        <!-- Operatii -->
+        <group id="grpOperatii" label="Operatii">
+          <button id="btnCalcMateriale" label="Calcul Materiale" size="normal" imageMso="CalculateNow" onAction="CalcMateriale"/>
+          <button id="btnFormeazaFisa" label="Formeaza Fisa" size="normal" imageMso="CreateReport" onAction="FormeazaFisa"/>
+          <button id="btnStatistica" label="Date statistice" size="normal" imageMso="DataRangeProperties" onAction="Statistica"/>
+        </group>
+
+        <!-- Actiuni -->
+        <group id="grpActiuni" label="Actiuni">
+          <button id="btnImportPV" label="Import PV" size="normal" imageMso="FileImport" onAction="ImportPV"/>
+          <button id="btnExportPV" label="Exporta PV" size="normal" imageMso="ConvertTableToText" onAction="ExportPV"/>
+          <button id="btnExportF" label="Exporta Fise" size="normal" imageMso="ConvertTextToTable" onAction="ExportF"/>
+        </group>
+	  <!-- Setari -->
+        <group id="grpSetari" label="Setari">
+          <button id="btnRefresh" label="Reimprospateaza" size="large" imageMso="Refresh" onAction="btnRefresh_onAction"/>
+        </group>
+	  <!-- Autor -->
+        <group id="grpAutor" label="Autor">
+          <button id="btnAutor" label="Sef SPAS, DSPPAS" size="large" imageMso="WorkgroupAdmin" onAction="Autor"/>
+        </group>
+
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
