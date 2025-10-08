@@ -1,10 +1,24 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "ThisWorkbook"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
 Private Sub Workbook_Open()
     On Error Resume Next
     
     ' Activeaza foaia START la deschiderea fi?ierului
     ThisWorkbook.Sheets("START").Activate
-        
+    ' Activeaza tabul "Proces Verbal" (id="tabTest") din Ribbon la deschidere
+    If Not Module1.ribbonUI Is Nothing Then
+        Module1.ribbonUI.ActivateTab "tabTest"
+    End If
+    
     On Error GoTo 0
+    
 End Sub
 
 Private Sub Workbook_SheetDeactivate(ByVal Sh As Object)
@@ -39,7 +53,21 @@ Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
         Module1.LoadLists
         On Error GoTo 0
     End If
-    
+      
+        ' Verificam daca s-a modificat direct celula C18 pe o foaie PV_*
+    If Left(Sh.Name, 3) = "PV_" And Not Intersect(Target, Sh.Range("C18")) Is Nothing Then
+        Dim linie As Long
+        linie = Module1.CautaValoareRand("PVModel", "D61")
+        If Sh.Range("C18").value = "Servicii prestate" Then
+            Sh.Range("G" & linie + 4).value = ""
+            Sh.Range("D" & linie + 4).value = ""
+        Else
+            Sh.Range("G" & linie + 4).value = Module1.CautaSiReturneaza("Liste", "Sector", Module1.cmbEchipaText, "SefSIDTP")
+            Sh.Range("D" & linie + 4).value = "Sef SIDTP"
+        End If
+   End If
+      
+      
     ' Verificam dacг modificarea afecteaza coloanele E sau F
     If Not Intersect(Target, Sh.Range("E:F")) Is Nothing Then
         
