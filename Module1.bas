@@ -1,3 +1,4 @@
+Attribute VB_Name = "Module1"
 Option Explicit
 ' Stare globala pentru o singura foaie vizualizata temporar
 Public TempVisibleSheetName As String
@@ -5,21 +6,33 @@ Public TempPrevVisibility As XlSheetVisibility
 ' Ribbon global
 Public ribbonUI As IRibbonUI
 Public Rindul As Long
+Public cmbEchipaText As String
 ' ARRAY-URI stocate ca Variant (pentru a primi dict.Keys)
 Private echipeArr As Variant
 Private tipArr As Variant
 ' Text curent selectat (pentru getText)
-Private cmbEchipaText As String
 Private cmbTipText As String
 ' Foi-model/foi date care pot fi ascunse
 Private Const MODEL_SHEETS As String = "PVModel|FisaModel|Liste|Obiect|Norma|Materiale|Utilaj|Transport"
 Public FlagUserFormNeedsRefresh As Boolean
-
 ' =============================================
 ' PROTECTIE FOI DE BAZA DE DATE CRITICE
 ' =============================================
 ' Lista foilor critice de baza de date
 Private Const BAZA_DATE_SHEETS As String = "Obiect|Norma|Materiale|Utilaj|Transport|Liste"
+
+' Aceasta se apeleaza din XML la onLoad="RibbonOnLoad"
+Public Sub RibbonOnLoad(ribbon As IRibbonUI)
+    Set ribbonUI = ribbon
+    LoadLists
+    AscundeFoiModel
+
+    ' Activeaza tabul "Proces Verbal" din Ribbon la оncarcare
+    On Error Resume Next
+    ribbonUI.ActivateTab "tabTest"
+    On Error GoTo 0
+End Sub
+
 
 ' Verifica daca foaia este una critica
 Private Function IsCriticalSheet(sheetName As String) As Boolean
@@ -140,14 +153,7 @@ Public Sub ArataFoiModel(Optional ByVal vis As XlSheetVisibility = xlSheetVisibl
 Clean:
     RestoreStructureIfNeeded wasProt
 End Sub
-' =============================================
-' Ribbon
-' =============================================
-Public Sub RibbonOnLoad(ribbon As IRibbonUI)
-    Set ribbonUI = ribbon
-    LoadLists
-    AscundeFoiModel
-End Sub
+
 ' =============================================
 ' ?ncarca listele din foaia "Liste"
 ' =============================================
@@ -248,8 +254,10 @@ Public Sub cmbEchipa_onChange(control As IRibbonControl, text As String)
         ActiveSheet.Range("C" & linie).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefSector") & "             "
         linie = CautaValoareRand("PVModel", "D63")
         ActiveSheet.Range("G" & linie).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefDepartament")
-        linie = CautaValoareRand("PVModel", "D65")
-        ActiveSheet.Range("G" & linie).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefSIDTP")
+        linie = CautaValoareRand("PVModel", "D61")
+        If ActiveSheet.Range("C18").value <> "Servicii prestate" Then
+            ActiveSheet.Range("G" & linie + 4).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefSIDTP")
+        End If
     Else
         MsgBox "Foia data nu este un Proces Verbal", vbExclamation
     End If
@@ -297,6 +305,24 @@ Public Sub btnRefresh_onAction(control As IRibbonControl)
     CalcMateriale Nothing
     MsgBox "Listele au fost reincarcate din foaia 'Liste'.", vbInformation
 End Sub
+'-----------------------
+'Combinatii de taste
+'----------------------
+Public Sub FormularPVKey()
+Attribute FormularPVKey.VB_ProcData.VB_Invoke_Func = "P\n14"
+AddProcesVerbalNou Nothing
+End Sub
+
+Public Sub FormularNormaKey()
+Attribute FormularNormaKey.VB_ProcData.VB_Invoke_Func = "N\n14"
+AddFormularNorma Nothing
+End Sub
+
+Public Sub FormularTransportKey()
+Attribute FormularTransportKey.VB_ProcData.VB_Invoke_Func = "T\n14"
+AddFormularTransport Nothing
+End Sub
+
 ' =============================================
 ' MACRO-URI PENTRU BUTOANE MENIU
 ' =============================================
@@ -316,8 +342,10 @@ Public Sub AddProcesVerbalNou(control As IRibbonControl)
     ActiveSheet.Range("C" & linie).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefSector") & "             "
     linie = CautaValoareRand("PVModel", "D63")
     ActiveSheet.Range("G" & linie).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefDepartament")
-    linie = CautaValoareRand("PVModel", "D65")
-    ActiveSheet.Range("G" & linie).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefSIDTP")
+    linie = CautaValoareRand("PVModel", "D61")
+    If ActiveSheet.Range("C18").value <> "Servicii prestate" Then
+        ActiveSheet.Range("G" & linie + 4).value = CautaSiReturneaza("Liste", "Sector", cmbEchipaText, "SefSIDTP")
+    End If
     ActiveSheet.Range("C11").Select
 End Sub
 Public Sub AddFormularNorma(control As IRibbonControl)
@@ -823,17 +851,20 @@ Public Sub PopuleazaListBoxCuDateDinFoaiaCurenta(ByVal sheetName As String, Opti
         MsgBox "Foaia '" & sheetName & "' nu contine date suficiente!", vbExclamation
         Exit Sub
     End If
+
     ReDim latimeMaxima(1 To ultimaColoana)
     matriceDate = ws.Range(ws.Cells(1, 1), ws.Cells(ultimulRand, ultimaColoana)).value
     listBox.Clear
     listBox.ColumnCount = ultimaColoana
+
     Dim latimi As String
     If latimeColoane = "" Then
+        ' Calculeaza automat latimile pe baza con?inutului
         For j = 1 To ultimaColoana
-            latimeMaxima(j) = Len(CStr(matriceDate(1, j))) * 8 + 20
+            latimeMaxima(j) = Len(CStr(matriceDate(1, j))) * 7 + 20 ' antet
             For i = 2 To UBound(matriceDate, 1)
                 Dim lungimeText As Single
-                lungimeText = Len(CStr(matriceDate(i, j))) * 8 + 20
+                lungimeText = Len(CStr(matriceDate(i, j))) * 7 + 20
                 If lungimeText > latimeMaxima(j) Then latimeMaxima(j) = lungimeText
             Next i
         Next j
@@ -842,18 +873,21 @@ Public Sub PopuleazaListBoxCuDateDinFoaiaCurenta(ByVal sheetName As String, Opti
             latimi = latimi & CStr(latimeMaxima(j)) & " pt"
         Next j
     Else
+        ' Folose?te latimi furnizate
         Dim liniiLatime() As String
         liniiLatime = Split(latimeColoane, ";")
         For j = 1 To ultimaColoana
             If j > 1 Then latimi = latimi & ";"
             If j <= UBound(liniiLatime) + 1 Then
-                latimi = latimi & liniiLatime(j - 1) & " pt"
+                latimi = latimi & Trim(liniiLatime(j - 1)) & " pt"
             Else
                 latimi = latimi & "100 pt"
             End If
         Next j
     End If
+
     listBox.ColumnWidths = latimi
+
     For i = 2 To ultimulRand
         listBox.AddItem ""
         k = i - 2
@@ -861,7 +895,10 @@ Public Sub PopuleazaListBoxCuDateDinFoaiaCurenta(ByVal sheetName As String, Opti
             listBox.List(k, j - 1) = CStr(matriceDate(i, j))
         Next j
     Next i
+
     listBox.Tag = sheetName & "|" & ultimaColoana
+
+    ' (Op?ional: numeColoane pentru UserForm1.Tag)
     Dim numeColoane As String
     For j = 1 To ultimaColoana
         If j > 1 Then numeColoane = numeColoane & "|"
@@ -962,30 +999,35 @@ End Sub
 ' Add Obiecte/Norma/Materiale/Utilaj/Transport (UserForm)
 ' ============================================
 Sub AddObiect()
+Attribute AddObiect.VB_ProcData.VB_Invoke_Func = "o\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Obiect"
     UserForm1.Tag = "CautareObiect"
-    PopuleazaListBoxCuDateDinFoaiaCurenta "Obiect", "45;170"
+    PopuleazaListBoxCuDateDinFoaiaCurenta "Obiect", "45;670"
     UserForm1.Show
 End Sub
 Sub AddNorma()
+Attribute AddNorma.VB_ProcData.VB_Invoke_Func = "n\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Norma"
     UserForm1.Tag = "CautareNorma"
-    PopuleazaListBoxCuDateDinFoaiaCurenta "Norma", "60;350;40;50"
+    PopuleazaListBoxCuDateDinFoaiaCurenta "Norma", "60;650;40;40"
     UserForm1.Show
 End Sub
 Sub AddMateriale()
+Attribute AddMateriale.VB_ProcData.VB_Invoke_Func = "m\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Materiale"
     UserForm1.Tag = "CautareMateriale"
-    PopuleazaListBoxCuDateDinFoaiaCurenta "Materiale", "90;285;50;80"
+    PopuleazaListBoxCuDateDinFoaiaCurenta "Materiale", "60;240;40;60"
     UserForm1.Show
 End Sub
 Sub AddUtilaj()
+Attribute AddUtilaj.VB_ProcData.VB_Invoke_Func = "u\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Utilaj"
     UserForm1.Tag = "CautareUtilaj"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Utilaj", "90;285;50"
     UserForm1.Show
 End Sub
 Sub AddTransport()
+Attribute AddTransport.VB_ProcData.VB_Invoke_Func = "t\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Transport"
     UserForm1.Tag = "CautareTransport"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Transport", "50;50;200;40;50;40;50"
@@ -1078,6 +1120,7 @@ End Sub
 ' Creare Fise din PV
 ' ============================================
 Public Sub CreeazaFiseDinPV()
+Attribute CreeazaFiseDinPV.VB_ProcData.VB_Invoke_Func = " \n14"
     Dim wb As Workbook
     Dim ws As Worksheet
     Dim wsModel As Worksheet
@@ -1736,7 +1779,3 @@ Public Sub ProtejeazaFoiaSTART()
     
     MsgBox "Foaia 'START' este protejata ?mpotriva ?tergerii ?i modificarii (fara parola).", vbInformation
 End Sub
-
-
-
-
