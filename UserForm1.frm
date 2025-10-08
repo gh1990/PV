@@ -1,11 +1,40 @@
+VERSION 5.00
+Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserForm1 
+   Caption         =   "UserForm1"
+   ClientHeight    =   8890.001
+   ClientLeft      =   110
+   ClientTop       =   450
+   ClientWidth     =   10660
+   OleObjectBlob   =   "UserForm1.frx":0000
+   StartUpPosition =   1  'CenterOwner
+End
+Attribute VB_Name = "UserForm1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
 Private Sub CommandButton2_Click()
 Unload UserForm1
+End Sub
+
+Private Sub ListBox1_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    If KeyCode = vbKeyReturn Then
+        ' Simuleaza click pe butonul Adauga
+        Call CommandButton1_Click
+        ' (op?ional) opre?te propagarea tastei Enter
+        KeyCode = 0
+    End If
+End Sub
+
+Private Sub ListBox1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    ' Simuleaza ac?iunea butonului Adauga
+    Call CommandButton1_Click
 End Sub
 
 Private Sub UserForm_Activate()
     Dim sheetName As String
 
-    ' Mapeaza Tag-ul UserForm la foaia reala de baza de date
+    ' Mapeaza Tag-ul UserForm la foaia reala de baza de date (poate folose?ti la validare sau mesaje)
     Select Case Me.Tag
         Case "CautareNorma":      sheetName = "Norma"
         Case "CautareObiect":     sheetName = "Obiect"
@@ -17,16 +46,15 @@ Private Sub UserForm_Activate()
     End Select
 
     If sheetName <> "" Then
-        If Module1.SheetExistsAll(sheetName) Then
-            Module1.PopuleazaListBoxCuDateDinFoaiaCurenta sheetName
-        Else
+        If Not Module1.SheetExistsAll(sheetName) Then
             MsgBox "Foaia '" & sheetName & "' nu exista оn registru!", vbExclamation
         End If
     Else
-        ' Daca nu ai Tag-ul potrivit, po?i lasa ListBox1 nepopulat sau sa afi?ezi un mesaj custom.
+        ' Po?i afi?a un mesaj sau sa la?i ListBox-ul nepopulat daca Tag-ul nu e corect.
+        'MsgBox "Tag-ul UserForm nu este setat corect!", vbExclamation
     End If
 
-    ' Pozi?ionare ?i alte ini?ializari (daca exista)
+    ' Pozi?ionare ?i alte ini?ializari (po?i pastra)
     Dim latimeEcran As Long
     Dim inaltimeEcran As Long
     Dim latimeForma As Long
