@@ -1,4 +1,3 @@
-Attribute VB_Name = "Module1"
 Option Explicit
 ' Stare globala pentru o singura foaie vizualizata temporar
 Public TempVisibleSheetName As String
@@ -27,7 +26,7 @@ Public Sub RibbonOnLoad(ribbon As IRibbonUI)
     LoadLists
     AscundeFoiModel
 
-    ' Activeaza tabul "Proces Verbal" din Ribbon la оncarcare
+    ' Activeaza tabul "Proces Verbal" din Ribbon la incarcare
     On Error Resume Next
     ribbonUI.ActivateTab "tabTest"
     On Error GoTo 0
@@ -309,17 +308,14 @@ End Sub
 'Combinatii de taste
 '----------------------
 Public Sub FormularPVKey()
-Attribute FormularPVKey.VB_ProcData.VB_Invoke_Func = "P\n14"
 AddProcesVerbalNou Nothing
 End Sub
 
 Public Sub FormularNormaKey()
-Attribute FormularNormaKey.VB_ProcData.VB_Invoke_Func = "N\n14"
 AddFormularNorma Nothing
 End Sub
 
 Public Sub FormularTransportKey()
-Attribute FormularTransportKey.VB_ProcData.VB_Invoke_Func = "T\n14"
 AddFormularTransport Nothing
 End Sub
 
@@ -633,7 +629,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
         End With
     Next i
     If deletableCount = 0 Then
-        MsgBox "Nu s-au gasit foi de sters cu prefixele 'PV_' sau 'F_' (excluzвnd foile critice).", vbInformation
+        MsgBox "Nu s-au gasit foi de sters cu prefixele 'PV_' sau 'F_' (excluzand foile critice).", vbInformation
         Exit Sub
     End If
     ' Siguranta: nu permite stergerea tuturor foilor (Excel necesita cel putin o foaie)
@@ -643,7 +639,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     End If
     ' 2) Confirmare (optional)
     If cereConfirmare Then
-        raspuns = MsgBox("Se vor sterge " & deletableCount & " foi (PV_* si F_*, excluzвnd foile critice)." & vbCrLf & _
+        raspuns = MsgBox("Se vor sterge " & deletableCount & " foi (PV_* si F_*, excluzand foile critice)." & vbCrLf & _
                          "Esti sigur ca vrei sa continui?", vbQuestion + vbYesNo + vbDefaultButton2, "Confirmare stergere")
         If raspuns <> vbYes Then Exit Sub
     End If
@@ -666,7 +662,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     Application.DisplayAlerts = prevAlerts
     Application.ScreenUpdating = prevScreen
     Application.EnableEvents = prevEvents
-    MsgBox "Au fost sterse " & deletableCount & " foi (PV_* si F_*, excluzвnd foile critice).", vbInformation
+    MsgBox "Au fost sterse " & deletableCount & " foi (PV_* si F_*, excluzand foile critice).", vbInformation
     Exit Sub
 ErrHandler:
     ' Restaurare stari in caz de eroare
@@ -999,35 +995,30 @@ End Sub
 ' Add Obiecte/Norma/Materiale/Utilaj/Transport (UserForm)
 ' ============================================
 Sub AddObiect()
-Attribute AddObiect.VB_ProcData.VB_Invoke_Func = "o\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Obiect"
     UserForm1.Tag = "CautareObiect"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Obiect", "45;670"
     UserForm1.Show
 End Sub
 Sub AddNorma()
-Attribute AddNorma.VB_ProcData.VB_Invoke_Func = "n\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Norma"
     UserForm1.Tag = "CautareNorma"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Norma", "60;650;40;40"
     UserForm1.Show
 End Sub
 Sub AddMateriale()
-Attribute AddMateriale.VB_ProcData.VB_Invoke_Func = "m\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Materiale"
     UserForm1.Tag = "CautareMateriale"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Materiale", "60;240;40;60"
     UserForm1.Show
 End Sub
 Sub AddUtilaj()
-Attribute AddUtilaj.VB_ProcData.VB_Invoke_Func = "u\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Utilaj"
     UserForm1.Tag = "CautareUtilaj"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Utilaj", "90;285;50"
     UserForm1.Show
 End Sub
 Sub AddTransport()
-Attribute AddTransport.VB_ProcData.VB_Invoke_Func = "t\n14"
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Transport"
     UserForm1.Tag = "CautareTransport"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Transport", "50;50;200;40;50;40;50"
@@ -1120,7 +1111,6 @@ End Sub
 ' Creare Fise din PV
 ' ============================================
 Public Sub CreeazaFiseDinPV()
-Attribute CreeazaFiseDinPV.VB_ProcData.VB_Invoke_Func = " \n14"
     Dim wb As Workbook
     Dim ws As Worksheet
     Dim wsModel As Worksheet
