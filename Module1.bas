@@ -786,6 +786,7 @@ Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional Insera
         MsgBox "Operatie anulata.", vbExclamation
         Exit Sub
     End If
+    
     If InserareRand Then
         Rindul = rng.Row
         rng.EntireRow.Insert Shift:=xlDown
@@ -809,6 +810,7 @@ Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional Insera
         On Error GoTo 0
         rng.Worksheet.Cells(Rindul, colIndex).value = arrValori(i)
     Next i
+
     'MsgBox "Valorile au fost adaugate in randul " & Rindul & ".", vbInformation
 End Sub
 ' ============================================
@@ -995,34 +997,40 @@ End Sub
 ' Add Obiecte/Norma/Materiale/Utilaj/Transport (UserForm)
 ' ============================================
 Sub AddObiect()
+    If UserForm1.Visible Then Unload UserForm1
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Obiect"
     UserForm1.Tag = "CautareObiect"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Obiect", "45;670"
-    UserForm1.Show
+    UserForm1.Show vbModeless
 End Sub
 Sub AddNorma()
+    If UserForm1.Visible Then Unload UserForm1
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Norma"
     UserForm1.Tag = "CautareNorma"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Norma", "60;650;40;40"
-    UserForm1.Show
+    UserForm1.Show vbModeless 'modal sau vbModeless, dar un tip constant!
 End Sub
+
 Sub AddMateriale()
+    If UserForm1.Visible Then Unload UserForm1
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Materiale"
     UserForm1.Tag = "CautareMateriale"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Materiale", "60;240;40;60"
-    UserForm1.Show
+    UserForm1.Show vbModeless 'sau .Show, dar un tip constant!
 End Sub
 Sub AddUtilaj()
+    If UserForm1.Visible Then Unload UserForm1
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Utilaj"
     UserForm1.Tag = "CautareUtilaj"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Utilaj", "90;285;50"
-    UserForm1.Show
+    UserForm1.Show vbModeless
 End Sub
 Sub AddTransport()
+    If UserForm1.Visible Then Unload UserForm1
     PopuleazaComboBoxCuColoaneDinFoaiaCurenta "Transport"
     UserForm1.Tag = "CautareTransport"
     PopuleazaListBoxCuDateDinFoaiaCurenta "Transport", "50;50;200;40;50;40;50"
-    UserForm1.Show
+    UserForm1.Show vbModeless
 End Sub
 ' ============================================
 ' Creare PV nou – Copiere robusta + redenumire corecta + pozitionare corecta
