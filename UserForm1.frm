@@ -32,7 +32,7 @@ Private Sub UserForm_Activate()
 
     If sheetName <> "" Then
         If Not Module1.SheetExistsAll(sheetName) Then
-            MsgBox "Foaia '" & sheetName & "' nu exista оn registru!", vbExclamation
+            MsgBox "Foaia '" & sheetName & "' nu exista in registru!", vbExclamation
         End If
     Else
         ' Po?i afi?a un mesaj sau sa la?i ListBox-ul nepopulat daca Tag-ul nu e corect.
@@ -51,11 +51,11 @@ Private Sub UserForm_Activate()
     latimeForma = Me.Width
     inaltimeForma = Me.Height
 
-    With Me
-        .StartUpPosition = 0
-        .Left = Application.Max(0, (latimeEcran - latimeForma))
-        .Top = Application.Max(0, (inaltimeEcran - inaltimeForma) / 2)
-    End With
+With Me
+    .StartUpPosition = 0
+    .Left = latimeEcran / 2
+    .Top = (inaltimeEcran - (inaltimeForma / 2)) / 2
+End With
 End Sub
 
 
@@ -96,7 +96,7 @@ Private Sub CommandButton1_Click()
             valoare3 = ListBox1.List(ListBox1.ListIndex, 2)
             valoare4 = ListBox1.List(ListBox1.ListIndex, 3)
             InserareRandCopy valoare1 & ";" & valoare2 & ";" & valoare3 & ";" & valoare4, "B;C;D;H", False
-            Unload UserForm1
+            'Unload UserForm1
 
         Case "CautareMateriale"
             valoare1 = ListBox1.List(ListBox1.ListIndex, 0)
@@ -111,7 +111,7 @@ Private Sub CommandButton1_Click()
             valoare3 = ListBox1.List(ListBox1.ListIndex, 2)
             valoare4 = ListBox1.List(ListBox1.ListIndex, 3)
             InserareRandCopy valoare1 & ";" & valoare2 & ";" & valoare3 & ";" & valoare4, "C;D;E;F"
-            Unload UserForm1
+            'Unload UserForm1
 
         Case "CautareTransport"
             valoare1 = ListBox1.List(ListBox1.ListIndex, 0)
@@ -126,7 +126,7 @@ Private Sub CommandButton1_Click()
             ActiveSheet.Range("D" & Rindul).value = valoare6
             ActiveSheet.Range("F" & Rindul).value = valoare7
             Rindul = Rindul
-            Unload UserForm1
+            'Unload UserForm1
 
         Case Else
             MsgBox "Sursa de date necunoscuta!", vbExclamation
