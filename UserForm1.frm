@@ -32,7 +32,7 @@ Private Sub UserForm_Activate()
 
     If sheetName <> "" Then
         If Not Module1.SheetExistsAll(sheetName) Then
-            MsgBox "Foaia '" & sheetName & "' nu exista in registru!", vbExclamation
+            MsgBox "Foaia '" & sheetName & "' nu exista în registru!", vbExclamation
         End If
     Else
         ' Po?i afi?a un mesaj sau sa la?i ListBox-ul nepopulat daca Tag-ul nu e corect.
@@ -103,14 +103,14 @@ Private Sub CommandButton1_Click()
             valoare2 = ListBox1.List(ListBox1.ListIndex, 1)
             valoare3 = ListBox1.List(ListBox1.ListIndex, 2)
             valoare5 = ListBox1.List(ListBox1.ListIndex, 4)
-            InserareRandCopy valoare1 & ";" & valoare2 & ";" & valoare3 & ";" & valoare5, "B;C;D;F"
+            InserareRandCopy valoare1 & ";" & valoare2 & ";" & valoare3 & ";" & valoare5, "B;C;D;F", False
             
         Case "CautareUtilaj"
             valoare1 = ListBox1.List(ListBox1.ListIndex, 0)
             valoare2 = ListBox1.List(ListBox1.ListIndex, 1)
             valoare3 = ListBox1.List(ListBox1.ListIndex, 2)
             valoare4 = ListBox1.List(ListBox1.ListIndex, 3)
-            InserareRandCopy valoare1 & ";" & valoare2 & ";" & valoare3 & ";" & valoare4, "C;D;E;F"
+            InserareRandCopy valoare1 & ";" & valoare2 & ";" & valoare3 & ";" & valoare4, "C;D;E;F", False
             'Unload UserForm1
 
         Case "CautareTransport"
@@ -121,7 +121,7 @@ Private Sub CommandButton1_Click()
             valoare5 = ListBox1.List(ListBox1.ListIndex, 4)
             valoare6 = ListBox1.List(ListBox1.ListIndex, 5)
             valoare7 = ListBox1.List(ListBox1.ListIndex, 6)
-            InserareRandCopy valoare1 & ";" & valoare3 & ",   " & valoare2 & ";" & valoare4 & ";" & valoare5, "B;C;D;F", False
+            InserareRandCopy valoare1 & ";" & valoare3 & ",   " & valoare2 & ";" & valoare4 & ";" & valoare5, "B;C;D;F", True
             Rindul = Rindul + 1
             ActiveSheet.Range("D" & Rindul).value = valoare6
             ActiveSheet.Range("F" & Rindul).value = valoare7
