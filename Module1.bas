@@ -767,18 +767,18 @@ Public Sub InsereazaRanduriDinPVModel(Diapazon As String)
     wsSursa.Rows(Diapazon).Copy Destination:=wsDest.Rows(targetRow)
     'MsgBox "Rindurile " & Diapazon & " din foaia 'PVModel' au fost inserate deasupra rindului " & targetRow & ".", vbInformation
 End Sub
-Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional InserareRand As Variant)
+' InserareRandCopy cu argument logic op?ional pentru inserare 2 randuri
+Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional logic As Variant)
     Dim rng As Range
     Dim arrValori() As String, arrColoane() As String
     Dim i As Long
-    If IsMissing(InserareRand) Then
-        Dim raspuns As VbMsgBoxResult
-        raspuns = MsgBox("Doriti sa inserati un rind nou deasupra selectiei?" & vbCrLf & _
-                         "— Da: se insereaza rind nou" & vbCrLf & _
-                         "— Nu: se scrie in rindul selectat", _
-                         vbQuestion + vbYesNo, "Alegeti modul de inserare")
-        InserareRand = (raspuns = vbYes)
-    End If
+    Dim colIndex As Long
+    Dim rightColIndex As Long
+    Dim rightCell As Range
+    Dim shouldInsertRow As Boolean
+    Dim insertRowsCount As Long
+
+    ' Selecteaza o celula pe foaia activa
     On Error Resume Next
     Set rng = Application.InputBox("Selecteaza o celula pe foaia activa:", "Alege celula", Type:=8)
     On Error GoTo 0
@@ -786,22 +786,40 @@ Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional Insera
         MsgBox "Operatie anulata.", vbExclamation
         Exit Sub
     End If
-    
-    If InserareRand Then
+
+    ' Determina coloana imediat la dreapta
+    rightColIndex = rng.Column + 1
+    Set rightCell = rng.Worksheet.Cells(rng.Row, rightColIndex)
+
+    ' Logica inserare:
+    ' - Daca celula selectata este goala ?i cea din dreapta are valoare: inserare rand
+    ' - Daca logic=True, se insereaza doua randuri deasupra
+    shouldInsertRow = False
+    insertRowsCount = 1
+
+    If IsEmpty(rng.value) And Not IsEmpty(rightCell.value) Then
+        shouldInsertRow = True
+        If Not IsMissing(logic) And logic = True Then
+            insertRowsCount = 2
+        End If
+    End If
+
+    If shouldInsertRow Then
         Rindul = rng.Row
-        rng.EntireRow.Insert Shift:=xlDown
+        rng.Worksheet.Rows(Rindul & ":" & (Rindul + insertRowsCount - 1)).Insert Shift:=xlDown
     Else
         Rindul = rng.Row
     End If
+
     arrValori = Split(Valori, ";")
     arrColoane = Split(Coloane, ";")
     If UBound(arrValori) <> UBound(arrColoane) Then
         MsgBox "Numarul valorilor nu corespunde cu numarul coloanelor.", vbCritical
         Exit Sub
     End If
+
     For i = LBound(arrValori) To UBound(arrValori)
         On Error Resume Next
-        Dim colIndex As Long
         colIndex = rng.Worksheet.Columns(Trim(arrColoane(i))).Column
         If Err.Number <> 0 Then
             MsgBox "Coloana invalida: " & arrColoane(i), vbCritical
