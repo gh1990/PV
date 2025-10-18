@@ -59,7 +59,7 @@ Private Sub Workbook_SheetChange(ByVal Sh As Object, ByVal Target As Range)
    End If
       
       
-    ' Verificam daca modificarea afecteaza coloanele E sau F
+    ' Verificam dacã modificarea afecteaza coloanele E sau F
     If Not Intersect(Target, Sh.Range("E:F")) Is Nothing Then
         
                 ' >>>>>> VERIFICARE FOAIE: Ruleaza DOAR pe foi care incep cu "PV_"
@@ -238,18 +238,16 @@ ExitSub:
         Exit Sub
         
 ErrorHandler:
-        MsgBox "A aparut o eroare: " & Err.Description, vbExclamation
+        MsgBox "A apãrut o eroare: " & Err.Description, vbExclamation
         Resume ExitSub
     End If
 End Sub
 
 '--------------
-'
-'--------------
 Private Sub Workbook_SheetActivate(ByVal Sh As Object)
     On Error GoTo SafeExit
     ' Daca avem o foaie deschisa temporar ?i tocmai am activat o foaie "mereu vizibila",
-    ' atunci restauram vizibilitatea foii temporare (o reascundem cum era inainte)
+    ' atunci restauram vizibilitatea foii temporare (o reascundem cum era înainte)
     If Len(TempVisibleSheetName) > 0 Then
         If StrComp(Sh.Name, TempVisibleSheetName, vbTextCompare) <> 0 Then
             If IsAlwaysVisibleSheetName(Sh.Name) Then
