@@ -45,29 +45,23 @@
           <button id="btnAddListeBD" label="Liste" size="normal" imageMso="ColumnsDialog" onAction="AddListeBD"/>
         </group>
 
-        <!-- Modele -->
-        <group id="grpModele" label="Modele">
-          <button id="btnFormularPV" label="Model PV" size="normal" imageMso="EnvelopesAndLabelsDialog" onAction="FormularPV"/>
-          <button id="btnFormularFise" label="Model Fise" size="normal" imageMso="AddressBook" onAction="FormularFise"/>
-          <button id="btnStergePVFise" label="Sterge PV/Fise" size="normal" imageMso="Delete" onAction="StergePVFise"/>
-        </group>
-
         <!-- Operatii -->
         <group id="grpOperatii" label="Operatii">
           <button id="btnCalcMateriale" label="Calcul Materiale" size="normal" imageMso="CalculateNow" onAction="CalcMateriale"/>
-          <button id="btnFormeazaFisa" label="Formeaza Fisa" size="normal" imageMso="CreateReport" onAction="FormeazaFisa"/>
           <button id="btnStatistica" label="Date statistice" size="normal" imageMso="DataRangeProperties" onAction="Statistica"/>
+          <button id="btnStergePVFise" label="Sterge PV/Fise" size="normal" imageMso="Delete" onAction="StergePVFise"/>
         </group>
 
         <!-- Actiuni -->
         <group id="grpActiuni" label="Actiuni">
           <button id="btnImportPV" label="Import PV" size="normal" imageMso="FileImport" onAction="ImportPV"/>
           <button id="btnExportPV" label="Exporta PV" size="normal" imageMso="ConvertTableToText" onAction="ExportPV"/>
-          <button id="btnExportF" label="Exporta Fise" size="normal" imageMso="ConvertTextToTable" onAction="ExportF"/>
+          <button id="btnImportNorma" label="Importa Norma/PV" size="normal" imageMso="CreateReport" onAction="ImportNorma"/>
         </group>
-	  <!-- Setari -->
-        <group id="grpSetari" label="Setari">
-          <button id="btnRefresh" label="Reimprospateaza" size="large" imageMso="Refresh" onAction="btnRefresh_onAction"/>
+	  <!-- Modele / Setari -->
+        <group id="grpSetari" label="Setari / Modele">
+          <button id="btnFormularPV" label="Model PV" size="normal" imageMso="EnvelopesAndLabelsDialog" onAction="FormularPV"/>
+          <button id="btnRefresh" label="Refresh" size="normal" imageMso="Refresh" onAction="btnRefresh_onAction"/>
         </group>
 	  <!-- Autor -->
         <group id="grpAutor" label="Autor">
