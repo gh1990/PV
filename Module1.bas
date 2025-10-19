@@ -26,7 +26,7 @@ Public Sub RibbonOnLoad(ribbon As IRibbonUI)
     LoadLists
     AscundeFoiModel
 
-    ' Activeaza tabul "Proces Verbal" din Ribbon la incarcare
+    ' Activeaza tabul "Proces Verbal" din Ribbon la încarcare
     On Error Resume Next
     ribbonUI.ActivateTab "tabTest"
     On Error GoTo 0
@@ -300,7 +300,7 @@ End Sub
 Public Sub btnRefresh_onAction(control As IRibbonControl)
     LoadLists
     AscundeFoiModel
-    FormeazaFisa Nothing
+    ImportNorma Nothing
     CalcMateriale Nothing
     MsgBox "Listele au fost reincarcate din foaia 'Liste'.", vbInformation
 End Sub
@@ -482,6 +482,9 @@ Public Sub CalcMateriale(control As IRibbonControl)
     
     ' --- Ruleaza logica de calcul ---
     If ExistaPrefix("PV_") Then
+        If Left(ActiveSheet.Name, 3) = "PV_" Then
+            ActiveSheet.Range("E1").value = " "
+        End If
         cautaValoarea
         totalManopera
     End If
@@ -492,15 +495,16 @@ Finalize:
     Application.EnableEvents = prevEvents
     Application.DisplayAlerts = True
     If Err.Number <> 0 Then
-        MsgBox "Eroare ?n CalcMateriale: " & Err.Description, vbExclamation
+        MsgBox "Eroare in CalcMateriale: " & Err.Description, vbExclamation
     End If
 End Sub
 
-Public Sub FormeazaFisa(control As IRibbonControl)
+Public Sub ImportNorma(control As IRibbonControl)
     If ExistaPrefix("PV_") Then
         If Left(ActiveSheet.Name, 3) = "PV_" Then
             ActiveSheet.Range("E1").value = " "
-            CreeazaFiseDinPV
+            SincronizeazaNormeDinPVinBD
+            'CreeazaFiseDinPV
         Else
             MsgBox "Selecteaza o foaie de tip Proces Verbal (PV_*) pentru a genera fisa!", vbExclamation
         End If
@@ -629,7 +633,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
         End With
     Next i
     If deletableCount = 0 Then
-        MsgBox "Nu s-au gasit foi de sters cu prefixele 'PV_' sau 'F_' (excluzand foile critice).", vbInformation
+        MsgBox "Nu s-au gasit foi de sters cu prefixele 'PV_' sau 'F_' (excluzând foile critice).", vbInformation
         Exit Sub
     End If
     ' Siguranta: nu permite stergerea tuturor foilor (Excel necesita cel putin o foaie)
@@ -639,7 +643,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     End If
     ' 2) Confirmare (optional)
     If cereConfirmare Then
-        raspuns = MsgBox("Se vor sterge " & deletableCount & " foi (PV_* si F_*, excluzand foile critice)." & vbCrLf & _
+        raspuns = MsgBox("Se vor sterge " & deletableCount & " foi (PV_* si F_*, excluzând foile critice)." & vbCrLf & _
                          "Esti sigur ca vrei sa continui?", vbQuestion + vbYesNo + vbDefaultButton2, "Confirmare stergere")
         If raspuns <> vbYes Then Exit Sub
     End If
@@ -662,7 +666,7 @@ Public Sub StergePVsiFise(Optional ByVal cereConfirmare As Boolean = True)
     Application.DisplayAlerts = prevAlerts
     Application.ScreenUpdating = prevScreen
     Application.EnableEvents = prevEvents
-    MsgBox "Au fost sterse " & deletableCount & " foi (PV_* si F_*, excluzand foile critice).", vbInformation
+    MsgBox "Au fost sterse " & deletableCount & " foi (PV_* si F_*, excluzând foile critice).", vbInformation
     Exit Sub
 ErrHandler:
     ' Restaurare stari in caz de eroare
@@ -767,7 +771,7 @@ Public Sub InsereazaRanduriDinPVModel(Diapazon As String)
     wsSursa.Rows(Diapazon).Copy Destination:=wsDest.Rows(targetRow)
     'MsgBox "Rindurile " & Diapazon & " din foaia 'PVModel' au fost inserate deasupra rindului " & targetRow & ".", vbInformation
 End Sub
-' InserareRandCopy cu argument logic op?ional pentru inserare 2 randuri
+' InserareRandCopy cu argument logic op?ional pentru inserare 2 rânduri
 Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional logic As Variant)
     Dim rng As Range
     Dim arrValori() As String, arrColoane() As String
@@ -792,8 +796,8 @@ Public Sub InserareRandCopy(Valori As String, Coloane As String, Optional logic 
     Set rightCell = rng.Worksheet.Cells(rng.Row, rightColIndex)
 
     ' Logica inserare:
-    ' - Daca celula selectata este goala ?i cea din dreapta are valoare: inserare rand
-    ' - Daca logic=True, se insereaza doua randuri deasupra
+    ' - Daca celula selectata este goala ?i cea din dreapta are valoare: inserare rând
+    ' - Daca logic=True, se insereaza doua rânduri deasupra
     shouldInsertRow = False
     insertRowsCount = 1
 
@@ -1262,6 +1266,123 @@ ErrHandler:
     Application.EnableEvents = prevEvents
     MsgBox "Eroare la CreeazaFiseDinPV: " & Err.Description, vbExclamation
 End Sub
+
+' Procedura: Sincronizeaza codurile normelor gasite în PV_* în foaia BD "Norma"
+Public Sub SincronizeazaNormeDinPVinBD(Optional ByVal wb As Workbook)
+    Dim wsPV As Worksheet
+    Dim wsNorma As Worksheet
+    Dim cel As Range, cel2 As Range
+    Dim countNr As Long
+    Dim listaNrVal() As Long, listaNrRow() As Long
+    Dim i As Long, j As Long
+    Dim dict As Object
+    Dim code As String, desc As String, um As String, normaVal As Variant
+    Dim key As String
+    Dim lastRowBD As Long
+    Dim colCod As Variant, colDesc As Variant, colUM As Variant, colNorma As Variant
+
+    On Error GoTo ErrHandler
+    If wb Is Nothing Then Set wb = ThisWorkbook
+
+    ' Verificam foaia "Norma" (BD)
+    On Error Resume Next
+    Set wsNorma = wb.Worksheets("Norma")
+    On Error GoTo ErrHandler
+    If wsNorma Is Nothing Then
+        MsgBox "Foaia 'Norma' nu exista in registru. Creeaza foaia 'Norma' cu anteturile: CodNorma, DescriereNorma, UM, Norma.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Gasim coloanele din antet (rândul 1) — asteptam exact aceste nume de coloane
+    colCod = Application.Match("CodNorma", wsNorma.Rows(1), 0)
+    colDesc = Application.Match("DescriereNorma", wsNorma.Rows(1), 0)
+    colUM = Application.Match("UM", wsNorma.Rows(1), 0)
+    colNorma = Application.Match("Norma", wsNorma.Rows(1), 0)
+    If IsError(colCod) Or IsError(colDesc) Or IsError(colUM) Or IsError(colNorma) Then
+        MsgBox "Foaia 'Norma' trebuie sa contina anteturile exacte in rândul 1: CodNorma, DescriereNorma, UM, Norma", vbCritical
+        Exit Sub
+    End If
+
+    ' Construim un dictionar cu codurile existente pentru verificari rapide (case-insensitive)
+    Set dict = CreateObject("Scripting.Dictionary")
+    dict.CompareMode = vbTextCompare
+    lastRowBD = wsNorma.Cells(wsNorma.Rows.count, CLng(colCod)).End(xlUp).Row
+    If lastRowBD >= 2 Then
+        For i = 2 To lastRowBD
+            code = Trim(CStr(wsNorma.Cells(i, CLng(colCod)).value))
+            If code <> "" Then
+                If Not dict.Exists(UCase(code)) Then dict.Add UCase(code), True
+            End If
+        Next i
+    End If
+
+    Dim addedCount As Long
+    addedCount = 0
+
+    ' Parcurgem foile PV_ din workbook
+    For Each wsPV In wb.Worksheets
+        If Left(wsPV.Name, 3) = "PV_" Then
+            ' Colectam markerii numerici cu interior gri din A1:A200
+            countNr = 0
+            For Each cel In wsPV.Range("A1:A200")
+                If cel.Interior.Color = RGB(217, 217, 217) Then
+                    If IsNumeric(cel.value) Then
+                        countNr = countNr + 1
+                        ReDim Preserve listaNrVal(1 To countNr)
+                        ReDim Preserve listaNrRow(1 To countNr)
+                        listaNrVal(countNr) = CLng(cel.value)
+                        listaNrRow(countNr) = cel.Row
+                    End If
+                End If
+            Next cel
+
+            ' Excludem ultimul marker (conventia: ultimul este transport / marker special)
+            If countNr >= 1 Then
+                countNr = countNr - 1
+            End If
+
+            ' Procesam fiecare marker ramas (1..countNr)
+            For j = 1 To countNr
+                Dim r As Long
+                r = listaNrRow(j)
+                ' Extragem datele din PV (coloanele indicate)
+                code = Trim(CStr(wsPV.Cells(r, "B").value))
+                If code = "" Then
+                    ' daca nu exista cod, sarim
+                    GoTo ContinuaUrmator
+                End If
+                key = UCase(code)
+                ' Daca nu exista deja in BD, adaugam
+                If Not dict.Exists(key) Then
+                    desc = wsPV.Cells(r, "C").value
+                    um = wsPV.Cells(r, "D").value
+                    normaVal = wsPV.Cells(r, "H").value
+                    lastRowBD = wsNorma.Cells(wsNorma.Rows.count, CLng(colCod)).End(xlUp).Row + 1
+                    wsNorma.Cells(lastRowBD, CLng(colCod)).value = code
+                    wsNorma.Cells(lastRowBD, CLng(colDesc)).value = desc
+                    wsNorma.Cells(lastRowBD, CLng(colUM)).value = um
+                    wsNorma.Cells(lastRowBD, CLng(colNorma)).value = normaVal
+                    dict.Add key, True
+                    addedCount = addedCount + 1
+                End If
+ContinuaUrmator:
+            Next j
+            ' curatam array-urile pentru urmatoarea foaie
+            If countNr >= 0 Then
+                Erase listaNrVal
+                Erase listaNrRow
+            End If
+        End If
+    Next wsPV
+
+    MsgBox "Sincronizare finalizata. Norme adaugate in BD: " & addedCount, vbInformation
+    Exit Sub
+
+ErrHandler:
+    MsgBox "Eroare in SincronizeazaNormeDinPVinBD: " & Err.Number & " - " & Err.Description, vbExclamation
+End Sub
+
+
 ' ============================================
 ' Calcul sectiuni materiale
 ' ============================================
